@@ -17,7 +17,8 @@
     "fastclick": "^1.0.6",
     "axios":"^0.17.1",
     "jsonp":"^0.2.1",
-    "better-scroll": "^1.5.5"
+    "better-scroll": "^1.5.5",
+    "vue-lazyload": "^1.1.4"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

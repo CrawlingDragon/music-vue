@@ -1,5 +1,5 @@
 <template>
-  <div id="slider" class="slider" ref="slider">
+  <div class="slider" ref="slider">
     <div class="slider-group" ref="sliderGroup">
       <slot></slot>
     </div>
@@ -40,13 +40,13 @@
     mounted() {
       setTimeout(() => {
         this.setSliderWidth()
-        this.initSlider()
         this._initDots()
+        this.initSlider()
         if (this.autoPlay) {
           this._play()
         }
       }, 20)
-      window.addEventListener('resize', function () {
+      window.addEventListener('resize', () => {
         if (!this.slider) {
           return
         }
@@ -70,7 +70,6 @@
         this.children = this.$refs.sliderGroup.children
         let width = 0
         let sliderWidth = this.$refs.slider.clientWidth
-        console.log(this.children.length)
         for (let i = 0; i < this.children.length; i++) {
           let child = this.children[i]
           addClass(child, 'slider-item')
@@ -80,17 +79,18 @@
         if (this.loop && !isResize) {
           width += 2 * sliderWidth
         }
-        this.$refs.slider.style.width = width + 'px'
+        this.$refs.sliderGroup.style.width = width + 'px'
       },
       initSlider() {
         this.slider = new BScroll(this.$refs.slider, {
-          scrollX: true,   // 横向滑动,true
-          scrollY: false,  // 竖向移动，不允许
-          momentum: false, // 当快速在屏幕上滑动一段距离的时候，会根据滑动的距离和时间计算出动量，并生成滚动动画。设置为 true 则开启动画。
-          snap: true,      // 这个配置是为了做 slide 组件用的，默认为 false
-          snapLoop: this.loop,
-          snapThreshold: 0.3,
-          snapSpeed: 400
+          scrollX: true,
+          scrollY: false,
+          momentum: false,
+          snap: {
+            loop: this.loop,
+            threshold: 0.3,
+            speed: 400
+          }
         })
 
         this.slider.on('scrollEnd', () => {
