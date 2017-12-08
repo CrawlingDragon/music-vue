@@ -1,13 +1,13 @@
 <template>
   <div class="singer" ref="singer">
-    <!--<list-view :data="singers"></list-view>-->
+    <list-view :data="singers"></list-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import {getSingers} from 'api/singer'
   import {ERR_OK} from 'api/config'
-  // import ListView from 'base/listView/listView'
+  import ListView from 'base/listView/listView'
   import Singer from 'common/js/singer'
 
   const HOT_NAME = '热门'    //定义hotname title
@@ -29,7 +29,6 @@
         getSingers().then((res) => {
           if (res.code === ERR_OK) {
             this.singers = this._normalizeSinger(res.data.list)
-            console.log(this.singers)
           }
         })
       },
@@ -85,7 +84,7 @@
       }
     },
     components: {
-      // ListView
+      ListView
     }
   }
 
