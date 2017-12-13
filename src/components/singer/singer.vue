@@ -1,6 +1,7 @@
 <template>
   <div class="singer" ref="singer">
-    <list-view :data="singers"></list-view>
+    <list-view :data="singers" @select="selectSinger"></list-view>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -9,6 +10,7 @@
   import {ERR_OK} from 'api/config'
   import ListView from 'base/listView/listView'
   import Singer from 'common/js/singer'
+  import {mapMutations} from 'vuex'
 
   const HOT_NAME = '热门'    //定义hotname title
   const HOT_SINGER_LEN = 10 // 定义数据的前10条为热门数据
@@ -81,7 +83,16 @@
         })
         return hot.concat(ret)  //最后返回hot和a-z数据的组合
 
-      }
+      },
+      selectSinger(item){
+        this.$router.push({
+          path:`/singer/${item.id}`
+        })
+        this.setSinger(item)
+      },
+      ...mapMutations({
+        setSinger:'SET_SINGER'
+      })
     },
     components: {
       ListView

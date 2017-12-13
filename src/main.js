@@ -3,6 +3,7 @@ import App from './App'
 import router from './router'
 import fastclick from 'fastclick'
 import LazyLoad from 'vue-lazyload'
+import store from './store' // 关于vuex的引用只能用小写
 Vue.config.productionTip = false
 
 Vue.use(LazyLoad,{
@@ -15,5 +16,6 @@ fastclick.attach(document.body)
 new Vue({
   el: '#app',
   router,
+  store,
   render: h => h(App)
 })

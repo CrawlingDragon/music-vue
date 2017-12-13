@@ -11,7 +11,7 @@
       <li class="list-group" ref="listGroup" v-for="group in data">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
-          <li class="list-group-item" v-for="item in group.items">
+          <li class="list-group-item" v-for="item in group.items" @click="selectSinger(item)">
             <img v-lazy="item.avatar" alt="" class="avatar">
             <span class="name">{{item.name}}</span>
           </li>
@@ -21,7 +21,9 @@
     <div class="list-shortcut" @touchstart.stop.prevent="onShortCutTouchStart"
          @touchmove.stop.prevent="onShortCutTouchMove">
       <ul>
-        <li class="item" v-for="(item, index) in shortCutList" :data-index="index" :class="{'current':currentIndex === index}">{{item}}</li>
+        <li class="item" v-for="(item, index) in shortCutList" :data-index="index"
+            :class="{'current':currentIndex === index}">{{item}}
+        </li>
       </ul>
     </div>
     <div class="list-fixed" ref="fixed" v-show="fixedTitle">
@@ -66,11 +68,11 @@
           return item.title.substr(0, 1)
         })
       },
-      fixedTitle(){
-        if(this.scrollY > 0){
+      fixedTitle() {
+        if (this.scrollY > 0) {
           return ''
         }
-        return this.data[this.currentIndex] ? this.data[this.currentIndex].title: ''
+        return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
       }
     },
     mounted() {
@@ -117,6 +119,9 @@
         }
         this.scrollY = -this.listHeight[index]   //获取滚动的高度
         this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
+      },
+      selectSinger(item) {  //向父组件singer传递歌手数据
+        this.$emit('select', item)
       }
     },
     watch: {
@@ -125,17 +130,17 @@
           this._calculateHeight()  //观察listHeight 记录一级栏目的高度集合数组
         }, 20)
       },
-      scrollY(newY){
+      scrollY(newY) {
         let listHeight = this.listHeight;
-        if(newY > 0){
+        if (newY > 0) {
           this.currentIndex = 0
           return
         }
 
-        for(let i = 0;i <listHeight.length - 1;i++){
+        for (let i = 0; i < listHeight.length - 1; i++) {
           let height1 = listHeight[i]
           let height2 = listHeight[i + 1]
-          if(-newY >= height1 && -newY < height2) {
+          if (-newY >= height1 && -newY < height2) {
             this.currentIndex = i
             this.diff = height2 + newY
             return
@@ -143,9 +148,11 @@
         }
         this.currentIndex = listHeight.length - 2
       },
-      diff(newVal){
+      diff(newVal) {
         let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0
-        if(this.fixedTitle === fixedTop) {return}
+        if (this.fixedTitle === fixedTop) {
+          return
+        }
         this.$refs.fixed.style.transform = `translate3D(0,${fixedTop}px,0)`
       }
     },
