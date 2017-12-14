@@ -11,7 +11,7 @@
     props: {
       probeType: {
         type: Number,
-        default: 1
+        default: 1  //值为3,不节流，一直返回滚动数据
       },
       click: {
         type: Boolean,

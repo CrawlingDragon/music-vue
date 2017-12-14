@@ -4,19 +4,19 @@
       <i class="icon-back"></i>
     </div>
     <h1 class="title"></h1>
-    <div class="bg-image">
-      <div class="play-wrapper">
+    <div class="bg-image" :style="bgStyle" ref="bgImage">
+      <div class="play-wrapper" ref="playBtn">
         <div class="play">
           <i class="icon-play"></i>
           <span class="text">随机播放全部</span>
         </div>
       </div>
-      <div class="filter"></div>
+      <div class="filter" ref="filter"></div>
     </div>
-    <div class="bg-play"></div>
-    <scroll>
+    <div class="bg-layer" ref="layer"></div>
+    <scroll :probe-type="probetype" :listen-scroll="listenScroll" :data="songs" @scroll="scroll" class="list" ref="list">
       <div class="song-list-wrapper">
-
+        <song-list :songs="songs"></song-list>
       </div>
       <div class="loading-container" v-show="false">
         <loading></loading>
@@ -28,23 +28,91 @@
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll'
   import Loading from 'base/loading/loading'
+  import SongList from 'base/song-list/song-list'
+  import {prefixStyle} from 'common/js/dom'
 
+  const RESERVED_HEIGHT = 40
+  const transform = prefixStyle('transform')
+  const backdrop = prefixStyle('backdrop-filter')
   export default {
+    props:{
+      bgImage:{
+        type:String,
+        default:''
+      },
+      songs:{
+        type:Array,
+        default:[]
+      },
+      title:{
+        type:String,
+        default:''
+      }
+    },
     data() {
-      return {}
+      return {
+        scrollY:0
+      }
     },
     created() {
+      this.probetype = 3
+      this.listenScroll = true
     },
     mounted() {
+      this.imageHeight = this.$refs.bgImage.clientHeight
+      this.minTranslateY = -this.imageHeight + RESERVED_HEIGHT  //向上滚动为负，滚动到顶端最小，也就是图片高度
+      this.$refs.list.$el.style.top = `${this.imageHeight}px`
+    },
+    computed:{
+      bgStyle(){
+        return `background-image:url(${this.bgImage})`
+      }
     },
     methods: {
       back(){
         this.$router.back()
+      },
+      scroll(pos){
+        this.scrollY = pos.y
+      }
+    },
+    watch:{
+      scrollY(newVal){
+        let translateY = Math.max(this.minTranslateY, newVal)
+        let scale = 1
+        let zIndex = 0
+        let blur = 0
+        const precent = Math.abs(newVal / this.imageHeight)
+
+        if(newVal > 0){  //也就是向下滑动
+          scale = 1 + precent
+          zIndex = 10
+        } else {
+          blur = Math.min(20, precent * 20)
+        }
+
+        this.$refs.layer.style[transform] = `translate3d(0,${translateY}px,0)`
+        this.$refs.filter.style[backdrop] = `blur(${blur}px)`
+
+        if(newVal < this.minTranslateY){
+          zIndex = 10
+          this.$refs.bgImage.style.paddingTop = 0
+          this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`
+          this.$refs.playBtn.style.display = 'none'
+        } else {
+          this.$refs.bgImage.style.paddingTop = '70%'
+          this.$refs.bgImage.style.height = 0
+          this.$refs.playBtn.style.display = 'block'
+        }
+
+        this.$refs.bgImage.style[transform] = `scale(${scale})`
+        this.$refs.bgImage.style.zIndex = zIndex
       }
     },
     components: {
       Scroll,
-      Loading
+      Loading,
+      SongList
     }
   }
 
