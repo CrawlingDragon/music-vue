@@ -1,13 +1,14 @@
 import {playMode} from 'common/js/config'
 
 const state = {
-  singer: {},
-  playing: false,
-  fullScreen: false,
-  playlist: [],
-  sequenceList: [],
-  mode: playMode.sequence,
-  currentIndex: -1
+  singer:{},
+   playing:false, //播放状态
+   fullScreen: false, //是否全屏播放
+   playlist:[], //播放列表
+   sequenceList:[],
+   mode: playMode.sequence,
+   currentIndex : -1 //当前歌曲的索引
+
 }
 
 export default state

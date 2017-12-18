@@ -4,6 +4,7 @@ const matutaions = {
   [types.SET_SINGER](state, singer) {
     state.singer = singer
   },
+
   [types.SET_PLAYING_STATE](state, flag) {
     state.playing = flag
   },
