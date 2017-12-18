@@ -14,9 +14,10 @@
       <div class="filter" ref="filter"></div>
     </div>
     <div class="bg-layer" ref="layer"></div>
-    <scroll :probe-type="probetype" :listen-scroll="listenScroll" :data="songs" @scroll="scroll" class="list" ref="list">
+    <scroll :probe-type="probetype" :listen-scroll="listenScroll" :data="songs" @scroll="scroll" class="list"
+            ref="list">
       <div class="song-list-wrapper">
-        <song-list :songs="songs"></song-list>
+        <song-list :songs="songs" @select="selectItem"></song-list>
       </div>
       <div class="loading-container" v-show="false">
         <loading></loading>
@@ -30,28 +31,29 @@
   import Loading from 'base/loading/loading'
   import SongList from 'base/song-list/song-list'
   import {prefixStyle} from 'common/js/dom'
+  import {mapActions} from 'vuex'
 
   const RESERVED_HEIGHT = 40
   const transform = prefixStyle('transform')
   const backdrop = prefixStyle('backdrop-filter')
   export default {
-    props:{
-      bgImage:{
-        type:String,
-        default:''
+    props: {
+      bgImage: {
+        type: String,
+        default: ''
       },
-      songs:{
-        type:Array,
-        default:[]
+      songs: {
+        type: Array,
+        default: []
       },
-      title:{
-        type:String,
-        default:''
+      title: {
+        type: String,
+        default: ''
       }
     },
     data() {
       return {
-        scrollY:0
+        scrollY: 0
       }
     },
     created() {
@@ -63,28 +65,43 @@
       this.minTranslateY = -this.imageHeight + RESERVED_HEIGHT  //向上滚动为负，滚动到顶端最小，也就是图片高度
       this.$refs.list.$el.style.top = `${this.imageHeight}px`
     },
-    computed:{
-      bgStyle(){
+    computed: {
+      bgStyle() {
         return `background-image:url(${this.bgImage})`
       }
     },
     methods: {
-      back(){
+      back() {
         this.$router.back()
       },
-      scroll(pos){
+      scroll(pos) {
         this.scrollY = pos.y
-      }
+      },
+      selectItem(song, index) {
+        this.selectPlay({
+          list:this.songs,
+          index
+        })
+      },
+      random() {
+        this.randomPlay({
+          list: this.songs
+        })
+      },
+      ...mapActions([
+        'selectPlay',
+        'randomPlay'
+      ])
     },
-    watch:{
-      scrollY(newVal){
+    watch: {
+      scrollY(newVal) {
         let translateY = Math.max(this.minTranslateY, newVal)
         let scale = 1
         let zIndex = 0
         let blur = 0
         const precent = Math.abs(newVal / this.imageHeight)
 
-        if(newVal > 0){  //也就是向下滑动
+        if (newVal > 0) {  //也就是向下滑动
           scale = 1 + precent
           zIndex = 10
         } else {
@@ -94,7 +111,7 @@
         this.$refs.layer.style[transform] = `translate3d(0,${translateY}px,0)`
         this.$refs.filter.style[backdrop] = `blur(${blur}px)`
 
-        if(newVal < this.minTranslateY){
+        if (newVal < this.minTranslateY) {
           zIndex = 10
           this.$refs.bgImage.style.paddingTop = 0
           this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`
