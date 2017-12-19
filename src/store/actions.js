@@ -23,7 +23,6 @@ export const selectPlay = function ({commit, state}, {list, index}) {
   commit(types.SET_CURRENT_INDEX, index) //获取当前索引
   commit(types.SET_FULL_SCREEN, true)  //全屏
   commit(types.SET_PLAYING_STATE, true) //开始播放
-
 }
 
 export const randomPlay = function ({commit}, {list}) {

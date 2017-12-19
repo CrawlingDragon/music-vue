@@ -43,7 +43,9 @@
           </div>
           <div class="progress-wrapper">
             <span class="time time-l">{{format(currentTime)}}</span>
-            <div class="progress-bar-wrapper"></div>
+            <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent" @percentChange="onPercentChange"></progress-bar>
+            </div>
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
           <div class="operators">
@@ -92,6 +94,7 @@
   import animations from 'create-keyframe-animation'
   import {prefixStyle} from "common/js/dom";
   import Scroll from 'base/scroll/scroll'
+  import ProgressBar from 'base/progress-bar/progress-bar'
 
   const transform = prefixStyle('transform')
   const transitionDuration = prefixStyle('transitionDuration')
@@ -116,6 +119,9 @@
       },
       miniIcon() {
         return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+      },
+      percent() {
+        return this.currentTime / this.currentSong.duration
       },
       ...mapGetters([
         'fullScreen',
@@ -223,15 +229,15 @@
         this.currentTime = e.target.currentTime
 
       },
-      format(interval){
+      format(interval) {
         interval = Math.floor(interval)
         let minute = Math.floor(interval / 60)
         let second = this._pad(interval % 60)
         return `${minute}:${second}`
       },
-      _pad(num,n = 2){
+      _pad(num, n = 2) {
         let len = num.toString().length
-        while(len < n){
+        while (len < n) {
           num = '0' + num
           len++
         }
@@ -251,6 +257,14 @@
           y,
           scale
         }
+      },
+      onPercentChange(percent) {
+        const time = this.currentSong.duration * percent
+        this.$refs.audio.currentTime = time
+        if (!this.playing) {
+          this.togglePlaying()
+        }
+
       },
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
@@ -274,7 +288,8 @@
       }
     },
     components: {
-      Scroll
+      Scroll,
+      ProgressBar
     }
   }
 
