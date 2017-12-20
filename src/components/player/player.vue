@@ -78,7 +78,9 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-          <i @click.stop="togglePlaying" :class="miniIcon" class="icon-mini"></i>
+          <progress-circle :radius="radius" :percent="percent">
+              <i @click.stop="togglePlaying" :class="miniIcon" class="icon-mini"></i>
+          </progress-circle>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
@@ -95,16 +97,19 @@
   import {prefixStyle} from "common/js/dom";
   import Scroll from 'base/scroll/scroll'
   import ProgressBar from 'base/progress-bar/progress-bar'
+  import ProgressCircle from 'base/progress-circle/progress-circle'
 
   const transform = prefixStyle('transform')
   const transitionDuration = prefixStyle('transitionDuration')
+
   export default {
     data() {
       return {
         songReady: false,
         currentLyric: null,
         currentShow: 'cd',
-        currentTime: 0
+        currentTime: 0,
+        radius:32
       }
     },
     computed: {
@@ -289,7 +294,8 @@
     },
     components: {
       Scroll,
-      ProgressBar
+      ProgressBar,
+      ProgressCircle
     }
   }
 
@@ -535,6 +541,11 @@
         .icon-play-mini, .icon-pause-mini, .icon-playlist
           font-size: 30px
           color: $color-theme-d
+        .icon-mini
+          font-size: 32px
+          position: absolute
+          left: 0
+          top: 0
 
   @keyframes rotate
     0%
