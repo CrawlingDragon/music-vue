@@ -3,7 +3,7 @@
     <div class="back" @click="back">
       <i class="icon-back"></i>
     </div>
-    <h1 class="title"></h1>
+    <h1 class="title">{{title}}</h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
       <div class="play-wrapper" ref="playBtn">
         <div class="play">

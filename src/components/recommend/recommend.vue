@@ -1,6 +1,6 @@
 <template>
   <div class="recommend" ref="recommend">
-    <scroll ref="scroll" class="recommend-content">
+    <scroll ref="scroll" class="recommend-content" :data="docList">
       <div>
         <div v-if="recommends.length" ref="sliderWrapper" class="slider-wrapper">
           <Slider>
@@ -14,7 +14,7 @@
         <div class="recommend-list">
           <h1 class="list-title">热门歌单推荐</h1>
           <ul>
-            <li class="item" v-for="(item,index) in docList">
+            <li class="item" v-for="(item,index) in docList" @click="selectItem(item)">
               <div class="icon">
                 <img v-lazy="item.imgurl" alt="" width="60" height="60">
               </div>
@@ -30,20 +30,23 @@
         <loading></loading>
       </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  import {getRecommend,getDiscList} from 'api/recommend'
+  import {getRecommend, getDiscList} from 'api/recommend'
   import {ERR_OK} from 'api/config'
   import Slider from 'base/slider/slider'
   import Scroll from 'base/scroll/scroll'
   import Loading from 'base/loading/loading'
+  import {mapMutations} from 'vuex'
+
   export default {
     data() {
       return {
         recommends: [],
-        docList:[]
+        docList: []
       }
     },
     created() {
@@ -60,19 +63,28 @@
           }
         })
       },
-      _getDisList(){
+      _getDisList() {
         getDiscList().then((res) => {
-          if(res.code === ERR_OK) {
+          if (res.code === ERR_OK) {
             this.docList = res.data.list
           }
         })
       },
-      loadImage(){
-        if(!this.checkloaded){
+      selectItem(item) {
+        this.$router.push({
+          path: `/recommend/${item.dissid}`
+        })
+        this.setDisc(item)
+      },
+      loadImage() {
+        if (!this.checkloaded) {
           this.checkloaded = true
           this.$refs.scroll.refresh()
         }
-      }
+      },
+      ...mapMutations({
+        setDisc: 'SET_DISC'
+      })
     },
     components: {
       Slider,

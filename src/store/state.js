@@ -7,8 +7,9 @@ const state = {
    playlist:[], //播放列表
    sequenceList:[],
    mode: playMode.sequence,
-   currentIndex : -1 //当前歌曲的索引
-
+   currentIndex : -1, //当前歌曲的索引
+   disc:{},
+   topList:{}
 }
 
 export default state

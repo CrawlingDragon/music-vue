@@ -1,6 +1,7 @@
 import Jsonp from 'common/js/jsonp'
-import Axios from 'axios'
+import axios from 'axios'
 import {commonParams, options} from './config'
+
 const debug = process.env.NODE_ENV !== 'production'
 
 // 获取轮播图图片数据
@@ -31,7 +32,29 @@ export function getDiscList() {
     format: 'json'
   })
 
-  return Axios.get(url, {
+  return axios.get(url, {
+    params: data
+  }).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
+
+//首页推荐列表获取数据
+export function getSongList(disstid) {
+  const url = debug ? '/api/getCdInfo' : 'http://ustbhuangyi.com/music/api/getCdInfo'
+
+  const data = Object.assign({}, commonParams, {
+    disstid,
+    type: 1,
+    json: 1,
+    utf8: 1,
+    onlysong: 0,
+    platform: 'yqq',
+    hostUin: 0,
+    needNewCode: 0
+  })
+
+  return axios.get(url, {
     params: data
   }).then((res) => {
     return Promise.resolve(res.data)

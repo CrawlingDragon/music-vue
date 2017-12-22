@@ -18,3 +18,6 @@ export const SET_PLAY_MODE = 'SET_PLAY_MODE' //获取播放模型
 
 export const SET_CURRENT_INDEX = 'SET_CURRENT_INDEX'  //获取当前播放列表的索引
 
+export const SET_DISC = 'SET_DISC'  //首页推荐 歌曲列表
+
+export const SET_TOP_LIST = 'SET_TOP_LIST' //歌曲排行

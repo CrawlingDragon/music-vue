@@ -9,9 +9,6 @@ const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const portfinder = require('portfinder')
 const axios = require('axios')
 
-const HOST = process.env.HOST
-const PORT = process.env.PORT && Number(process.env.PORT)
-
 const devWebpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({sourceMap: config.dev.cssSourceMap, usePostCSS: true})
@@ -35,63 +32,64 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         }).catch((e) => {
           console.log(e)
         })
-      }),
-        app.get('/api/getCdInfo', function (req, res) {
-          const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
-          axios.get(url, {
-            headers: {
-              referer: 'https://c.y.qq.com/',
-              host: 'c.yy.qq.com'
-            },
-            params: req.query
-          }).then((response) => {
-            let ret = response.data
-            if (typeof ret === 'string') {
-              const reg = /^\w+\(({.+})\)$/
-              const matches = ret.match(reg)
-              if (matches) {
-                ret = JSON.parse(matches[1])
-              }
-            }
-            res.json(ret)
-          }).catch((e) => {
-            console.log(e)
-          })
-        }),
-        app.get('/api/lyric', function (req, res) {
-          const url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
+      })
 
-          axios.get(url, {
-            headers: {
-              referer: 'https://c.y.qq.com/',
-              host: 'c.y.qq.com'
-            },
-            params: req.query
-          }).then((response) => {
-            let ret = response.data
-            if (typeof ret === 'string') {
-              const reg = /^\w+\(({.+})\)$/
-              const matches = ret.match(reg)
-              if (matches) {
-                ret = JSON.parse(matches[1])
-              }
+      app.get('/api/getCdInfo', function (req, res) {
+        const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          let ret = response.data
+          if (typeof ret === 'string') {
+            const reg = /^\w+\(({.+})\)$/
+            const matches = ret.match(reg)
+            if (matches) {
+              ret = JSON.parse(matches[1])
             }
-            res.json(ret)
-          }).catch((e) => {
-            console.log(e)
-          })
+          }
+          res.json(ret)
+        }).catch((e) => {
+          console.log(e)
         })
+      })
+
+      app.get('/api/lyric', function (req, res) {
+        const url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
+
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          let ret = response.data
+          if (typeof ret === 'string') {
+            const reg = /^\w+\(({.+})\)$/
+            const matches = ret.match(reg)
+            if (matches) {
+              ret = JSON.parse(matches[1])
+            }
+          }
+          res.json(ret)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
     },
-    // clientLogLevel: 'warning',
     historyApiFallback: true,
     hot: true,
-    compress: true,
-    host: HOST || config.dev.host,
-    port: PORT || config.dev.port,
+    host: process.env.HOST || config.dev.host,
+    port: process.env.PORT || config.dev.port,
     open: config.dev.autoOpenBrowser,
-    overlay: config.dev.errorOverlay
-      ? {warnings: false, errors: true}
-      : false,
+    overlay: config.dev.errorOverlay ? {
+      warnings: false,
+      errors: true,
+    } : false,
     publicPath: config.dev.assetsPublicPath,
     proxy: config.dev.proxyTable,
     quiet: true, // necessary for FriendlyErrorsPlugin
@@ -112,6 +110,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       template: 'index.html',
       inject: true
     }),
+    new FriendlyErrorsPlugin()
   ]
 })
 
@@ -129,7 +128,7 @@ module.exports = new Promise((resolve, reject) => {
       // Add FriendlyErrorsPlugin
       devWebpackConfig.plugins.push(new FriendlyErrorsPlugin({
         compilationSuccessInfo: {
-          messages: [`Your application is running here: http://${devWebpackConfig.devServer.host}:${port}`],
+          messages: [`Your application is running here: http://${config.dev.host}:${port}`],
         },
         onErrors: config.dev.notifyOnErrors
           ? utils.createNotifierCallback()
