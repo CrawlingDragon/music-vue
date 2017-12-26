@@ -40,10 +40,13 @@
       _getTopList(){
         getTopList().then((res) => {
           this.topList = res.data.topList
-          console.log(this.topList)
+          // console.log(this.topList)
         })
       },
       selectItem(item){
+        this.$router.push({
+          path:`/rank/:${item.id}`
+        })
         this.setTopList(item)
       },
       ...mapMutations({
