@@ -4,68 +4,85 @@
       <search-box ref="searchBox" @query="onQueryChange"></search-box>
     </div>
     <div class="shortcut-wrapper">
-      <scroll ref="shortcut" class="shortcut">
+      <scroll ref="shortcut"
+              class="shortcut"
+              :refreshDelay="refreshDelay"
+              :data="shortcut">
         <div>
           <div class="hot-key">
             <h1 class="title">热门搜索</h1>
             <ul>
-              <li class="item" v-for="item in hotkey"><span>{{item.k}}</span></li>
+              <li class="item" v-for="item in hotkey" @click="addQuery(item.k)"><span>{{item.k}}</span></li>
             </ul>
           </div>
           <div class="search-history">
             <h1 class="title">
               <span class="text">搜索历史</span>
-              <span class="clear">
+              <span class="clear" @click="clearSearch">
                 <i class="icon-clear"></i>
               </span>
             </h1>
-            <!--<search-list :query="query"></search-list>-->
+            <search-list :searches="searchHistory" @delete="deleteSearchHistory" @select="addQuery"></search-list>
           </div>
         </div>
       </scroll>
     </div>
     <div class="search-result" v-show="query">
-      <suggest :query="query"></suggest>
+      <suggest :query="query" @select="saveSearch"></suggest>
     </div>
+    <confirm text="确定要清空历史搜索吗" cancel="否" ref="confirm" @confirm="clearSearchHistory"></confirm>
     <router-view></router-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import SearchBox from "base/search-box/search-box"
+  import searchList from 'base/search-list/search-list'
   import {getHotKey} from 'api/search'
   import {ERR_OK} from 'api/config'
   import Scroll from "base/scroll/scroll"
   import Suggest from "components/suggest/suggest"
+  import confirm from "base/confirm/confirm"
+  import {searchMixin} from 'common/js/mixin'
+  import {mapActions} from 'vuex'
 
+  const refreshDelay = 20
   export default {
+    mixins:[searchMixin],
     components: {
       Scroll,
       SearchBox,
-      Suggest
+      Suggest,
+      searchList,
+      confirm
     },
     data() {
       return {
-        query: '',
         hotkey: []
       }
     },
     created() {
       this._getHotKey()
     },
-    mounted() {
+    computed:{
+      shortcut(){
+        return this.hotkey.concat(this.saveSearchHistory)
+      }
     },
     methods: {
-      onQueryChange(query) {
-        this.query = query
-      },
       _getHotKey() {
         getHotKey().then((res) => {
           if (res.code === ERR_OK) {
-            this.hotkey = res.data.hotkey.slice(0,10)
+            this.hotkey = res.data.hotkey.slice(0, 10)
           }
         })
-      }
+      },
+      clearSearch(){
+        this.$refs.confirm.show()
+      },
+      ...mapActions([
+        'clearSearchHistory'
+      ])
     },
     watch: {
       query(newQuery) {

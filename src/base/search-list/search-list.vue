@@ -22,7 +22,7 @@
     },
     methods:{
 		  selectItem(item){
-		    this.$emit('selectItem',item)
+		    this.$emit('select',item)
       },
       deleteOne(item){
         this.$emit('delete',item)

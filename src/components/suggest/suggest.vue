@@ -1,9 +1,14 @@
 <template>
   <scroll ref="suggest"
           class="suggest"
+          :data="result"
+          :pullup="pullup"
+          :beforeScroll="beforeScroll"
+          @scrollToEnd="searchMore"
+          @beforeScroll="listScroll"
   >
     <ul class="suggest-list">
-      <li class="suggest-item" v-for="item in result">
+      <li class="suggest-item" v-for="item in result" @click="selectItem(item)">
         <div class="icon">
           <i :class="getIconCls(item)"></i>
         </div>
@@ -11,10 +16,10 @@
           <p class="text" v-html="getDisplayName(item)"></p>
         </div>
       </li>
-      <loading v-show="" title=""></loading>
+      <loading v-show="hasMore" title=""></loading>
     </ul>
-    <div class="no-result-wrapper">
-
+    <div class="no-result-wrapper" v-show="!hasMore && !result.length">
+      <no-result title="抱歉，暂无搜索结果"></no-result>
     </div>
   </scroll>
 </template>
@@ -22,9 +27,13 @@
 <script>
   import Scroll from "../../base/scroll/scroll"
   import Loading from 'base/loading/loading'
+  import noResult from 'base/no-result/no-result'
   import {search} from 'api/search'
   import {ERR_OK} from 'api/config'
   import {createSong} from 'common/js/song'
+  import Singer from 'common/js/singer'
+  import {mapMutations, mapActions} from 'vuex'
+
   const prepage = 20
   const TYPE_SINGER = 'singer'
   export default {
@@ -40,26 +49,29 @@
     },
     data() {
       return {
-        page:1,
-        pullup:true,
-        beforeScroll:true,
-        hasMore:true,
-        result:[]
+        page: 1,
+        pullup: true,
+        beforeScroll: true,
+        hasMore: true,
+        result: []
       }
     },
     created() {
 
     },
     methods: {
-      getIconCls(item){
-        if(item.type === TYPE_SINGER){
+      refresh() {
+        this.$refs.suggest.refresh()
+      },
+      getIconCls(item) {
+        if (item.type === TYPE_SINGER) {
           return 'icon-mine'
         } else {
           return 'icon-music'
         }
       },
-      getDisplayName(item){
-        if(item.type === TYPE_SINGER) {
+      getDisplayName(item) {
+        if (item.type === TYPE_SINGER) {
           return item.singername
         } else {
           return `${item.name}-${item.singer}`
@@ -72,32 +84,76 @@
         search(this.query, this.page, this.showSinger, prepage).then((res) => {
           if (res.code === ERR_OK) {
             this.result = this._genResult(res.data)
+            this._checkMore(res.data)
           }
         })
       },
-      _genResult(data){
-        let ret = []
-        if(data.zhida && data.zhida.singerid){
-          ret.push({...data.zhida,...{type:TYPE_SINGER}})
+      searchMore() {  //搜索结过列表-更多
+        if (this.hasMore) {
+          return
         }
-        if(data.song){
+        this.page++
+        search(this.query, this.page, this.showSinger, prepage).then((res) => {
+          if (res.code === ERR_OK) {
+            this.result = this.result.concat(this._genResult(res.data))
+            this._checkMore(res.data)
+          }
+        })
+      },
+      listScroll() {
+        this.$emit('listScroll')
+      },
+      selectItem(item) { //选择歌曲后
+        if (item.type === TYPE_SINGER) {
+          const singer = new Singer({
+            id: item.singermid,
+            name: item.singername
+          })
+          this.$router.push({
+            path: `/search/${singer.id}`
+          })
+          this.setSinger(singer)
+        } else {
+          this.insertSong(item)
+        }
+        this.$emit('select', item)
+      },
+      _genResult(data) {
+        let ret = []
+        if (data.zhida && data.zhida.singerid) {
+          ret.push({...data.zhida, ...{type: TYPE_SINGER}})
+        }
+        if (data.song) {
           ret = ret.concat(this._normalize(data.song.list))
         }
         return ret
       },
-      _normalize(list){
+      _normalize(list) {
         let ret = []
         list.forEach((musicData) => {
-          if(musicData.songid && musicData.albummid){
+          if (musicData.songid && musicData.albummid) {
             ret.push(createSong(musicData))
           }
         })
         return ret
-      }
+      },
+      _checkMore(data) {
+        const song = data.song
+        if (!song.list.length || (song.curnum + song.curpage * prepage) > song.totalnum) {
+          this.hasMore = false
+        }
+      },
+      ...mapMutations({
+        setSinger: 'SET_SINGER'
+      }),
+      ...mapActions([
+        'insertSong'
+      ])
     },
     components: {
       Scroll,
-      Loading
+      Loading,
+      noResult
     },
     name: "suggest",
     watch: {
