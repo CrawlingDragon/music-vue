@@ -6,7 +6,7 @@
     <router-link tag="div" to="/singer" class="tab-item">
       <span class="tab-link">歌手</span>
     </router-link>
-    <router-link tag="div" to="rank" class="tab-item">
+    <router-link tag="div" to="/rank" class="tab-item">
       <span class="tab-link">排行</span>
     </router-link>
     <router-link tag="div" to="/search" class="tab-item">

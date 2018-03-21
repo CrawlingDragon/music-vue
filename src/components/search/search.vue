@@ -12,7 +12,7 @@
           <div class="hot-key">
             <h1 class="title">热门搜索</h1>
             <ul>
-              <li class="item" v-for="item in hotkey" @click="addQuery(item.k)"><span>{{item.k}}</span></li>
+              <li v-for="item in hotkey" @click="addQuery(item.k)" class="item"><span>{{item.k}}</span></li>
             </ul>
           </div>
           <div class="search-history">
